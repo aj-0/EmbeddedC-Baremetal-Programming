@@ -1,0 +1,28 @@
+#define RCC_AHB1ENR(*(volatile unsigned int*)0x40023830)
+#define RCC_APB1ENR(*(volatile unsigned int*)0x40023840)
+#define GPIOA_MODER(*(volatile unsigned int*)0x40020000)
+#define GPIOA_ODR(*(volatile unsigned int*)0x40020014)
+#define TIM2_PSC(*(volatile unsigned int*)0x40000028)
+#define TIM2_ARR(*(volatile unsigned int*)0x4000002C)
+#define TIM2_SR(*(volatile unsigned int*)0x40000010)
+#define TIM2_CR1(*(volatile unsigned int*)0x40000000)
+
+int main()
+{
+RCC_AHB1ENR|=1;
+RCC_APB1ENR|=1;
+
+GPIOA_MODER&=~(3<<10);
+GPIOA_MODER|=(1<<10);
+
+TIM2_PSC=15999;
+TIM2_ARR=999;
+TIM2_CR1|=1;
+
+while(1)
+{
+while(!(TIM2_SR&1));
+TIM2_SR&=~1;
+GPIOA_ODR^=(1<<5);
+}
+}
