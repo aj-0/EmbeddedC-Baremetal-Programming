@@ -1,20 +1,48 @@
-#define RCC_AHB1ENR(*(volatile unsigned int*)0x40023830)
-#define GPIOA_MODER(*(volatile unsigned int*)0x40020000)
-#define GPIOA_ODR(*(volatile unsigned int*)0x40020014)
+#include <stdint.h>
+//#define PERIPHERAL_BASE_ADD 0x40000000
+//
+//#define AHB1_BASE_ADD   0x40020000
+//#define APB1_BASE_ADD  PERIPHERAL_BASE_ADD
+//#define APB2_BASE_ADD  0x40010000
 
-void delay()
-{
-for(volatile int i=0;i<200000;i++);
-}
+#define RCC_BASE_ADD  0x40023800
+#define GPIOA_BASE_ADD  0x40020000 
+#define TIM2_BASE_ADD  0x40000000
+//#define  SYSCFG      0x40013800
+
+#define RCC_CR (*(volatile uint32_t*) (RCC_BASE_ADD + 0x00))
+#define RCC_AHB1ENR (*(volatile uint32_t*) (RCC_BASE_ADD + 0x30))
+#define RCC_APB1ENR (*(volatile uint32_t*) (RCC_BASE_ADD + 0x40))
+
+
+#define GPIOA_MODER  (*(volatile uint32_t*) (GPIOA_BASE_ADD + 0x00))
+#define GPIOA_OTYPER (*(volatile uint32_t*)(GPIOA_BASE_ADD + 0x04))
+#define GPIOA_ODR (*(volatile uint32_t*)(GPIOA_BASE_ADD + 0x14))
+
+#define TIM2_PSC (*(volatile uint32_t*)(TIM2_BASE_ADD + 0x28))
+#define TIM2_ARR (*(volatile uint32_t*)(TIM2_BASE_ADD + 0x2C))
+#define TIM2_SR (*(volatile uint32_t*)(TIM2_BASE_ADD + 0x10))
+
+
 int main()
 {
-RCC_AHB1ENR|=1;
+    RCC_AHB1ENR |= (1<<0);
+    RCC_APB1ENR |= (1<<0);
 
-GPIOA_MODER&=~(3<<10);
-GPIOA_MODER|=(1<<10);
+    GPIOA_MODER &= ~(3<<10);
+    GPIOA_MODER |=  (1<<10);
+    GPIOA_OTYPER &= ~(1<<5);
 
-while(1)
-{
-GPIOA_ODR^=(1<<5);
-delay();
-}}
+    TIM2_PSC = 15999;
+    TIM2_ARR = 999;
+    TIM2_CR1 |= 1;
+
+    while(1)
+    {
+        while(!(TIM2_SR & 1));
+        TIM2_SR &= ~(1);
+        GPIOA_ODR ^= (1<<5);
+
+    }
+
+}
